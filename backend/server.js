@@ -15,7 +15,7 @@ const WebSocket = require("ws");
 //adds websocket to the code 
 
 const server = http.createServer((req, res) => {
-    fs.readFile("index.html", (err, data) => {
+    fs.readFile("../frontend/index.html", (err, data) => {
         if(err){
             res.writeHead(500); 
             //gives server error response 
@@ -32,7 +32,7 @@ const server = http.createServer((req, res) => {
             return; 
         }
 
-        res.writeHead(200, {"Content-Type" : "text-html" }); 
+        res.writeHead(200, {"Content-Type" : "text/html" }); 
         //prints success codes 
         res.end(data); 
     }); 
@@ -44,7 +44,7 @@ const wss = new WebSocket.Server({ server });
 // ({ server }); asks server to use the current one we just made 
 
 wss.on("connection", (ws) => {
-    const shell = spawn("./jarvis"); 
+    const shell = spawn("./shell"); 
     //this line accesses the shell code to run the C program 
 
     console.log("Browser connected"); 
@@ -54,9 +54,26 @@ wss.on("connection", (ws) => {
         //this parses into the JSON input given by the user 
 
         shell.stdin.write(command + "\n"); 
-
     }); 
+
+    shell.stdout.on("data", (data) => {
+        ws.send(JSON.stringify({message : data.toString()})); 
+    }); 
+    //this helps communicate the response of C shell to the frontend 
+
+    shell.stderr.on("data", (data) => {
+        ws.send(JSON.stringify({message : data.toString()})); 
+    }); 
+    //this prints all the errors from the browser for better error handling 
+
+    ws.on("close", () => {
+        shell.kill(); 
+    }); 
+    //handles the disconnecting of the browser 
 }); 
 
-
-
+server.listen(3000, ()=>{
+//this tells the server to listen at 3000
+    console.log("Server running at http://localhost:3000"); 
+    //prints the port name 
+}); 

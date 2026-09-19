@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis</title>
+</head>
+<body>
+    <div id = "terminal">
+        <div id = "output"> </div>
+            <input id = "command"/>
+    </div>
+
+    <script>
+        /*
+        const is one of the ways to make variables in javascript, 
+        after initializing with const, variable cannot be reassigned but modified 
+        */
+
+        const input = document.getElementById("command"); 
+        const output = document.getElementById("output");
+        
+        const connection = new WebSocket(`ws://localhost:3000`); 
+        //hooks the frontend to the websocket server 
+
+        connection.onopen = () => {
+            console.log("Connected to Jarvis' Server"); 
+        }; 
+
+        input.addEventListener("keydown", (event) =>{
+            if(event.key == "Enter"){
+                const command = input.value; 
+                //this stores whatever was typed before ENTER into command variable 
+
+                connection.send(JSON.stringify({
+                    message : command
+                })); 
+
+                input.value = ""; 
+                //thus the box becomes empty for the next command \
+            }
+        }); 
+        //detects ENTER has been pressed to take input 
+
+        connection.onmessage = (event) => {
+            const data = JSON.parse(event.data); 
+            //convert JSON into js object given by the shell through websocket 
+
+            output.textContent += data.message; 
+        }; 
+        //displays the output of the input 
+    </script>
+</body>
+</html>
