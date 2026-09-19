@@ -117,7 +117,7 @@ int main(){
         line[strcspn(line, "\n")] = '\0'; 
         //removing trailing newline character as it gets added to the command once typed "Enter", messes up the command prompt 
 
-        int arg_count; 
+        int arg_count = 0; 
         //so that we don't we exceed our argument limit, and tells how many arguments are present in the input
 
         char *token = strtok(line, " "); 
