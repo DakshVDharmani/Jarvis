@@ -19,12 +19,14 @@ typedef enum {
     EXIT = -1, 
     cd = 1, 
     ls = 2, 
+    CLEAR = 3, 
 } Command; 
 
 Command get_command(const char *cmd_str){
     if(strcmp(cmd_str, "cd")== 0) return cd; 
     if(strcmp(cmd_str, "ls") == 0) return ls; 
     if(strcmp(cmd_str, "EXIT")== 0) return EXIT; 
+    if(strcmp(cmd_str, "clear") == 0) return CLEAR; 
 
     return UNKNOWN; 
 }
@@ -81,6 +83,12 @@ void builtIn_ls(char** args){
     //after we have printed all the names 
     closedir(dir); 
     //closes the directory 
+}
+
+void builtIn_clear(){
+    printf("\033[2J\033[H"); 
+    //\033 is for escaping character, [2J is for clearing the terminal screen, [H is to move cursor to top left
+    fflush(stdout); 
 }
 
 int main(){
@@ -148,6 +156,10 @@ int main(){
             
             case ls : 
                 builtIn_ls(args); 
+                break; 
+
+            case CLEAR : 
+                builtIn_clear(); 
                 break; 
             
             case EXIT : 

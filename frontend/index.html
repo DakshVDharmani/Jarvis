@@ -95,6 +95,12 @@
             const data = JSON.parse(event.data); 
             //convert JSON into js object given by the shell through websocket 
 
+            if(data.message.includes("\x1b[2J\x1b[H")){
+                output.textContent = ""; 
+                data.message = data.message.replace("\x1b[2J\x1b[H", ""); 
+                //removes only the input characters, leaves Jarvis:C:\Jarvis$ alone
+            }
+
             output.textContent += data.message; 
             terminal.scrollTop = terminal.scrollHeight; 
             //scrolls to the bottom whenever the output comes 
