@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
+  <title id="title">JARVIS</title>
+  <desc id="desc">Your machine. Your memory. Your assistant. A local-first personal AI in the making, illustrated with a cyan orbital core on a dark navy background.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#080e1c"/>
+      <stop offset="1" stop-color="#14233b"/>
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop stop-color="#22d3ee" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent">
+      <stop stop-color="#67e8f9"/>
+      <stop offset="1" stop-color="#a5b4fc"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#90b9db" stroke-opacity=".06"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="420" rx="20" fill="url(#background)"/>
+  <rect width="1280" height="420" rx="20" fill="url(#grid)"/>
+  <circle cx="1030" cy="210" r="260" fill="url(#halo)"/>
+  <g fill="none" stroke="#67e8f9" transform="translate(1030 210)">
+    <circle r="147" stroke-opacity=".14"/>
+    <circle r="128" stroke-opacity=".35" stroke-dasharray="2 12"/>
+    <circle r="107" stroke-width="2" stroke-opacity=".75" stroke-dasharray="170 30 55 30 120 267" transform="rotate(-35)"/>
+    <circle r="89" stroke-opacity=".2"/>
+    <circle r="65" stroke-width="3" stroke-opacity=".85" stroke-dasharray="85 17"/>
+    <path d="M-170 0H-137M137 0H170M0-170V-137M0 137V170" stroke-opacity=".55"/>
+    <path d="M0-38 33-19V19L0 38-33 19V-19Z" stroke-width="2"/>
+    <path d="M0-22 19-11V11L0 22-19 11V-11Z" fill="#67e8f9" fill-opacity=".12" stroke-opacity=".5"/>
+    <circle r="5" fill="#a5f3fc" stroke="none"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="72" y="84" font-size="13" letter-spacing="4" fill="#67e8f9">A LOCAL-FIRST PERSONAL AI IN THE MAKING</text>
+    <text x="65" y="204" font-size="108" font-weight="700" letter-spacing="10" fill="#f0f6ff">JARVIS</text>
+    <text x="72" y="258" font-size="27" fill="#d4dfed">Your machine. Your memory. Your assistant.</text>
+    <rect x="72" y="291" width="62" height="3" rx="1.5" fill="url(#accent)"/>
+    <text x="72" y="339" font-size="16" fill="#93a9c4">Built to understand. Designed to earn your trust.</text>
+    <circle cx="80" cy="379" r="4" fill="#f0b866"/>
+    <text x="94" y="384" font-size="12" letter-spacing="2" fill="#b0bfd1">EARLY PROTOTYPE · THE JOURNEY STARTS HERE</text>
+  </g>
+</svg>
