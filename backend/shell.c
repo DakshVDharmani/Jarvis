@@ -8,6 +8,8 @@
 //for string handling 
 #include <dirent.h> 
 //for traversal of directories 
+#include <sys/stat.h>
+//this is where mkdir is declared 
 
 #define MAX_LINE 1024 
 //for maximum input length 
@@ -19,12 +21,16 @@ typedef enum {
     EXIT = -1, 
     cd = 1, 
     ls = 2, 
+    CLEAR = 3, 
+    MKDIR = 4, 
 } Command; 
 
 Command get_command(const char *cmd_str){
     if(strcmp(cmd_str, "cd")== 0) return cd; 
     if(strcmp(cmd_str, "ls") == 0) return ls; 
     if(strcmp(cmd_str, "EXIT")== 0) return EXIT; 
+    if(strcmp(cmd_str, "clear") == 0) return CLEAR; 
+    if(strcmp(cmd_str, "mkdir")== 0) return MKDIR; 
 
     return UNKNOWN; 
 }
@@ -81,6 +87,30 @@ void builtIn_ls(char** args){
     //after we have printed all the names 
     closedir(dir); 
     //closes the directory 
+}
+
+void builtIn_clear(){
+    printf("\033[2J\033[H"); 
+    //\033[2J clears the terminal screen, and \033[H moves the cursor back to top left 
+}
+
+void builtIn_mkdir(char** args){
+    char* foldername = args[1]; 
+    //as args[0] will be the mkdir command
+
+    if(foldername == NULL){
+        printf("mkdir: missing folder name\n"); 
+        return; 
+    }
+    //handles the no name edge case 
+
+    if(mkdir(foldername) != 0){
+    /*while for linux/unix system, mkdir takes 2 inputs, foldername and permissions
+    for example, write if(mkdir(foldername), 0755) != 0) to give kinds of permissions
+    */
+
+        perror("mkdir failed"); 
+    }
 }
 
 int main(){
@@ -148,6 +178,14 @@ int main(){
             
             case ls : 
                 builtIn_ls(args); 
+                break; 
+
+            case CLEAR : 
+                builtIn_clear(); 
+                break; 
+            
+            case MKDIR : 
+                builtIn_mkdir(args); 
                 break; 
             
             case EXIT : 
