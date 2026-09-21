@@ -62,8 +62,13 @@ wss.on("connection", (ws) => {
 
     ws.on("message", (message) => {
         const data = JSON.parse(message.toString()); 
-        if(data.secret != SESSION_SECRET) return; 
         //this parses into the JSON input given by the user 
+
+        if(data.secret != SESSION_SECRET) {
+            ws.close(); 
+            return; 
+        }
+        //closes the websocket connection if found to be different than expected
 
         const command = data.message; 
 
