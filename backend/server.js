@@ -14,14 +14,14 @@ const { spawn } = require("child_process");
 const WebSocket = require("ws"); 
 //adds websocket to the code 
 
-const server = http.createServer((req, res) => {
-    const SESSION_SECRET = crypto.randomBytes(32).toString("hex"); 
+const SESSION_SECRET = crypto.randomBytes(32).toString("hex"); 
+/*creates a secret key for each session 
+so all the communication in the backend goes through 
+if the frontend is verified, 
+no unverified platforms can access 
+*/
 
-    /*creates a secret key for each session 
-    so all the communication in the backend goes through 
-    if the frontend is verified, 
-    no unverified platforms can access 
-    */
+const server = http.createServer((req, res) => {
     fs.readFile("../frontend/index.html", (err, data) => {
         if(err){
             res.writeHead(500); 
