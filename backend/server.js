@@ -72,8 +72,15 @@ wss.on("connection", (ws) => {
     //handles the disconnecting of the browser 
 }); 
 
-server.listen(3000, ()=>{
+/*
+Defining the port number with IP, instead of localhost keeps Jarvis secure 
+As potentially devices on the same network can access the shell, and other parts 
+It binds the server to the computer, and only accepts requests from it
+Thus, 127.0.0.1. is the loopback address, not Wifi LAN. 
+*/
+
+server.listen(3000, "127.0.0.1", ()=>{
 //this tells the server to listen at 3000
-    console.log("Server running at http://localhost:3000"); 
+    console.log("Server running at http://127.0.0.1.3000"); 
     //prints the port name 
 }); 
