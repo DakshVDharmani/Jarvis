@@ -17,7 +17,7 @@ Local voice. Inspectable memory. Actions you approve. A small language model tra
 ---
 
 > [!NOTE]
-> **Today:** a foundation for browser-to-process communication: HTML → WebSocket → Node.js → C, with `ls`, `cd`, and `EXIT`.  
+> **Today:** a local browser-to-process prototype: HTML → session-checked WebSocket → Node.js → C, with a small set of built-in file and system commands.
 > **The destination:** a local personal assistant with speech, memory, models, and controlled automation. Those capabilities are planned, not implemented yet.
 
 ## The vision
@@ -101,14 +101,20 @@ The C source uses `unistd.h` and `dirent.h`, so it needs a toolchain that suppli
 | `cd ..` | Change the C process's working directory to its parent. |
 | `cd backend` | Enter a directory relative to the current location. |
 | `cd` | Change to the directory in `HOME`, when that variable is available. |
+| `pwd` | Print the C process's current working directory. |
+| `mkdir <name>` | Create a directory. |
+| `touch <name>` | Create a file if it does not exist. |
+| `rm <name>` | Delete a file. There is no confirmation or recovery mechanism. |
+| `arp` | Run the host's `arp -a` command and print its output. |
+| `clear` | Clear the browser terminal output. |
 | `EXIT` | End this connection's C command loop; uppercase is required. |
 
-Each browser connection starts its own C process. The prompt includes its current directory. Unknown commands return `Command not found: <command>`; this is a small built-in command loop with space-delimited arguments. Quoted paths, pipes, redirection, and arbitrary system commands are not implemented.
+Each browser connection starts its own C process. The Node.js server generates a random secret at startup, injects it into the page it serves, and requires that secret in each WebSocket message. The server listens only on `127.0.0.1`. The prompt includes its current directory. Unknown commands return `Command not found: <command>`; this is a small built-in command loop with space-delimited arguments. Quoted paths, pipes, redirection, and arbitrary system commands are not implemented.
 
 After `EXIT`, refresh the page to start a new session. Stop the Node.js server with **Ctrl+C** in the terminal where you launched it.
 
 > [!IMPORTANT]
-> This prototype has no authentication, permission checks, or filesystem sandbox. The server does not explicitly bind to loopback, and directory access uses the server process's OS permissions. Keep port **3000** restricted to your own development machine; do not expose it to a shared network or the internet. The permission architecture below is future work.
+> The server is loopback-only and uses a startup session secret, which prevents ordinary network access and rejects WebSocket messages that do not carry the current secret. This is not a permission system: there is no user authentication, command authorization, filesystem sandbox, path allowlist, confirmation flow, or audit log. `cd`, `ls`, `mkdir`, `touch`, and `rm` operate with the server process's OS permissions; `rm` deletes immediately. Use it only as a local development prototype and do not treat the session secret as a security boundary against other software running on the same machine.
 
 <details>
 <summary><strong>Troubleshooting</strong></summary>
@@ -133,10 +139,12 @@ After `EXIT`, refresh the page to start a new session. Stop the Node.js server w
 - [x] Browser page with a command input and output area.
 - [x] Node.js HTTP server serving the frontend on port 3000.
 - [x] JSON messages over a WebSocket connection.
+- [x] Loopback-only server binding and a per-startup WebSocket session secret.
 - [x] A dedicated C command process for each connected browser.
 - [x] Browser input forwarded to the process's standard input.
 - [x] Standard output and standard error forwarded back to the browser.
-- [x] `ls`, `cd`, `EXIT`, current-directory prompts, and unknown-command feedback.
+- [x] Command history with Up/Down arrow navigation in the browser terminal.
+- [x] `ls`, `cd`, `pwd`, `mkdir`, `touch`, `rm`, `arp`, `clear`, `EXIT`, current-directory prompts, and unknown-command feedback.
 - [x] Child-process termination when a browser connection closes.
 - [x] A detailed six-phase build plan with acceptance gates.
 
@@ -164,7 +172,7 @@ After `EXIT`, refresh the page to start a new session. Stop the Node.js server w
 flowchart LR
     UI[Browser · HTML + JavaScript] <-->|JSON over WebSocket| Server[Node.js · HTTP + ws]
     Server <-->|stdin / stdout / stderr| Shell[C command loop]
-    Shell --> Builtins[ls · cd · EXIT]
+    Shell --> Builtins[ls · cd · pwd · mkdir · touch · rm · arp · clear · EXIT]
 ```
 
 This prototype explores the communication path from a browser to a native process. The planned assistant builds on those lessons with a Python core and a separate permission boundary.
