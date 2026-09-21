@@ -27,6 +27,7 @@ typedef enum {
     TOUCH = 5, 
     PWD = 6, 
     ARP = 7, 
+    RM = 8, 
 } Command; 
 
 Command get_command(const char *cmd_str){
@@ -38,6 +39,7 @@ Command get_command(const char *cmd_str){
     if(strcmp(cmd_str, "touch") == 0) return TOUCH; 
     if(strcmp(cmd_str, "pwd") == 0) return PWD; 
     if(strcmp(cmd_str, "arp") == 0) return ARP; 
+    if(strcmp(cmd_str, "rm") == 0) return RM; 
 
     return UNKNOWN; 
 }
@@ -146,6 +148,7 @@ void builtIn_pwd(){
     if(getcwd(cwd, sizeof(cwd)) != NULL){
         printf("%s\n", cwd); 
     }
+    //getcwd gets the current working directory 
 
     else{
         perror("pwd failed"); 
@@ -154,9 +157,23 @@ void builtIn_pwd(){
 
 void builtIn_arp(){
     int result = system("arp -a"); 
+    //system() acts as an operating system that executes a few commands, and then outputs them on the screen
 
     if(result != 0)
         perror("arp failed"); 
+    //stores the job outcome in result for error handling
+}
+
+void builtIn_rm(char** args){
+    char* filename = args[1]; 
+
+    if(filename == NULL){
+        printf("No file name was provided\n"); 
+        return; 
+    }
+
+    if(remove(filename) != 0)
+        perror("Couldn't delete file\n"); 
 }
 
 int main(){
@@ -244,6 +261,10 @@ int main(){
 
             case ARP : 
                 builtIn_arp(); 
+                break; 
+
+            case RM : 
+                builtIn_rm(args); 
                 break; 
             
             case EXIT : 
