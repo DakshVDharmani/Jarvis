@@ -2,19 +2,26 @@ const http = require("http");
 const fs = require("fs"); 
 //fs is short for file system to read the index.html 
 
+const crypto = require("crypto"); 
+
 const { spawn } = require("child_process"); 
 /*spawn lets Node start our C program, gives us 
     shell.stdin     // Node → C program
     shell.stdout    // C program → Node
     shell.stderr    // C errors → Node
-
-
 */
 
 const WebSocket = require("ws"); 
 //adds websocket to the code 
 
 const server = http.createServer((req, res) => {
+    const SESSION_SECRET = crypto.randomBytes(32).toString("hex"); 
+
+    /*creates a secret key for each session 
+    so all the communication in the backend goes through 
+    if the frontend is verified, 
+    no unverified platforms can access 
+    */
     fs.readFile("../frontend/index.html", (err, data) => {
         if(err){
             res.writeHead(500); 
@@ -34,6 +41,10 @@ const server = http.createServer((req, res) => {
 
         res.writeHead(200, {"Content-Type" : "text/html" }); 
         //prints success codes 
+
+        data = data.toString().replace("__SESSION_SECRET__", SESSION_SECRET); 
+        //sends placeholder to the frontend only
+
         res.end(data); 
     }); 
     //reads the html file 
@@ -50,8 +61,11 @@ wss.on("connection", (ws) => {
     console.log("Browser connected"); 
 
     ws.on("message", (message) => {
-        const command = JSON.parse(message.toString()).message; 
+        const data = JSON.parse(message.toString()); 
+        if(data.secret != SESSION_SECRET) return; 
         //this parses into the JSON input given by the user 
+
+        const command = data.message; 
 
         shell.stdin.write(command + "\n"); 
     }); 
@@ -81,6 +95,6 @@ Thus, 127.0.0.1. is the loopback address, not Wifi LAN.
 
 server.listen(3000, "127.0.0.1", ()=>{
 //this tells the server to listen at 3000
-    console.log("Server running at http://127.0.0.1.3000"); 
+    console.log("Server running at http://127.0.0.1:3000"); 
     //prints the port name 
 }); 
