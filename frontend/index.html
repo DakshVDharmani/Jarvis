@@ -54,8 +54,10 @@ box-sizing: border-box;">
             input.focus(); 
             //this way when clicked in the terminal, the cursor focuses on the input 
         })
+
+        const SESSION_SECRET = "__SESSION_SECRET__"; 
         
-        const connection = new WebSocket(`ws://localhost:3000`); 
+        const connection = new WebSocket(`ws://127.0.0.1:3000`); 
         //hooks the frontend to the websocket server 
 
         connection.onopen = () => {
@@ -73,7 +75,8 @@ box-sizing: border-box;">
                 output.textContent += command + "\n"; 
 
                 connection.send(JSON.stringify({
-                    message : command
+                    message : command, 
+                    secret : SESSION_SECRET
                 })); 
 
                 input.value = ""; 
