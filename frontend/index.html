@@ -5,23 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jarvis</title>
 </head>
-<body style="background-color: black; color: #e6e6e6; font-family: Consolas, monospace; margin: 0; padding: 20px">
+<body style="background-color: black; color: #e6e6e6; font-family: Consolas, monospace; 
+margin: 0; padding: 20px; height: 100vh; display: flex; justify-content: center; align-items: flex-end;
+box-sizing: border-box;">
     <!--color is for text color,
     while background color is for the screen background
     padding helps not being stuck in the top left corner
-    as margin is 0. -->
-    <div id = "terminal" style="min-height: 100vh; line-height: 1.5; text-shadow: 0 0 3px currentColor; 
-    overflow-y: auto; width: 100%; box-sizing: border-box; cursor: text;">
-        <span id = "output" style="white-space: pre-wrap; color: #00FF88;"></span>
+    as margin is 0. flex is a 1D layout model that helps align, arrange, etc
+    align items to flex-end pushes the content at the lower end of the screen  
+    box-sizing border box fixed the vertical scroll of the body prev-->
+    <div id = "terminal" style="line-height: 1.5; text-shadow: 0 0 3px currentColor;
+    width: 80%; box-sizing: border-box; cursor: text; height: 30vh; margin-bottom: 8vh; padding: 20px; 
+    border: 1px solid #333; border-radius: 8px; overflow-y: auto; background-color: #0a0a0a; position: relative;
+    overflow-x: hidden; word-break: break-word; box-shadow: 0 0 20px rgba(0, 255, 136, 0.08); 
+    scroll-behavior: smooth; display: block; flex-shrink: 0; font-size: 16px; letter-spacing: 0.3px; outline: none; 
+    color: #00FF88; transition: box-shadow 0.2s ease;">
+    <!--overflow-x hidden keeps long output to get a horizontal scrollbar
+    word break stops long outputs to flow outside the container-->
+        <span id = "output" style="white-space: pre-wrap; color: #00FF88; padding: 0; margin: 0;"></span>
         <!--span keeps the result inline, while div puts it to nextline-->
-            <input id = "command" autofocus style="background-color: black; color: white; 
+            <input id = "command" autofocus style="background-color: transparent; color: white; 
             border: none; outline: none; font-family: inherit; width: auto; font-size: 16px; 
             caret-color: white; padding: 4px 0; field-sizing: content; font-weight: 500; 
-            letter-spacing: 0.3px; min-width: 10px; max-width: 80vw; vertical-align: middle;"/>
+            letter-spacing: 0.3px; min-width: 10px; vertical-align: middle;
+            display: inline-block; max-width: 100%; box-sizing: border-box;"/>
             <!--
             Inherit just inherits from the body
             vw is the width of the viewport window 
             vh is the height of the viewport window 
+            box-sizing border box forces a border inside the allocated box width and height
             -->
     </div>
 
