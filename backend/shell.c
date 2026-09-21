@@ -1,5 +1,5 @@
 #include <stdio.h>
-//input and output 
+//input and output, handles touch and other commands 
 #include <stdlib.h>
 //for general utilities like memory allocation and process control conversions
 #include <unistd.h> 
@@ -23,6 +23,8 @@ typedef enum {
     ls = 2, 
     CLEAR = 3, 
     MKDIR = 4, 
+    TOUCH = 5, 
+    PWD = 6, 
 } Command; 
 
 Command get_command(const char *cmd_str){
@@ -31,6 +33,8 @@ Command get_command(const char *cmd_str){
     if(strcmp(cmd_str, "EXIT")== 0) return EXIT; 
     if(strcmp(cmd_str, "clear") == 0) return CLEAR; 
     if(strcmp(cmd_str, "mkdir")== 0) return MKDIR; 
+    if(strcmp(cmd_str, "touch") == 0) return TOUCH; 
+    if(strcmp(cmd_str, "pwd") == 0) return PWD; 
 
     return UNKNOWN; 
 }
@@ -113,6 +117,38 @@ void builtIn_mkdir(char** args){
     }
 }
 
+void builtIn_touch(char** args){
+    char* filename = args[1]; 
+    //as args[0] would be the command touch 
+
+    if(filename == NULL){
+        printf("Missing file name\n");
+        return;  
+    }
+
+    FILE *file = fopen(filename, "a"); 
+    //"a" creates if file doesnt exist, and if does, opens it 
+
+    if(file == NULL){
+        printf("Touch failed"); 
+        return; 
+    }
+
+    fclose(file); 
+}
+
+void builtIn_pwd(){
+    char cwd[MAX_LINE]; 
+
+    if(getcwd(cwd, sizeof(cwd)) != NULL){
+        printf("%s\n", cwd); 
+    }
+
+    else{
+        perror("pwd failed"); 
+    }
+}
+
 int main(){
     char line[MAX_LINE]; 
     char *args[MAX_ARGS]; 
@@ -186,6 +222,14 @@ int main(){
             
             case MKDIR : 
                 builtIn_mkdir(args); 
+                break; 
+
+            case TOUCH : 
+                builtIn_touch(args); 
+                break; 
+
+            case PWD : 
+                builtIn_pwd(); 
                 break; 
             
             case EXIT : 
