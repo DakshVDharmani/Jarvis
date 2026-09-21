@@ -2,6 +2,7 @@
 //input and output, handles touch and other commands 
 #include <stdlib.h>
 //for general utilities like memory allocation and process control conversions
+//system() comes from stdlib as well, having network validations 
 #include <unistd.h> 
 //for posio functions, get current directory, forks, and changing the directory 
 #include <string.h> 
@@ -25,6 +26,7 @@ typedef enum {
     MKDIR = 4, 
     TOUCH = 5, 
     PWD = 6, 
+    ARP = 7, 
 } Command; 
 
 Command get_command(const char *cmd_str){
@@ -35,6 +37,7 @@ Command get_command(const char *cmd_str){
     if(strcmp(cmd_str, "mkdir")== 0) return MKDIR; 
     if(strcmp(cmd_str, "touch") == 0) return TOUCH; 
     if(strcmp(cmd_str, "pwd") == 0) return PWD; 
+    if(strcmp(cmd_str, "arp") == 0) return ARP; 
 
     return UNKNOWN; 
 }
@@ -149,6 +152,13 @@ void builtIn_pwd(){
     }
 }
 
+void builtIn_arp(){
+    int result = system("arp -a"); 
+
+    if(result != 0)
+        perror("arp failed"); 
+}
+
 int main(){
     char line[MAX_LINE]; 
     char *args[MAX_ARGS]; 
@@ -230,6 +240,10 @@ int main(){
 
             case PWD : 
                 builtIn_pwd(); 
+                break; 
+
+            case ARP : 
+                builtIn_arp(); 
                 break; 
             
             case EXIT : 
