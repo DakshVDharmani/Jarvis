@@ -219,8 +219,10 @@ void builtIn_rm(char** args){
     }
 
     //remove operation is handled here
-    if(remove(filename) != 0)
+    if(remove(filename) != 0){
         perror("Couldn't delete file\n");
+        return; 
+    }
         
     printf("Deleted %s/%s\n", cwd, filename); 
 }
