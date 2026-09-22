@@ -1,6 +1,8 @@
 const http = require("http"); 
 const fs = require("fs"); 
 //fs is short for file system to read the index.html 
+const path = require("path"); 
+//if the frontend requests for a path
 
 const crypto = require("crypto"); 
 
@@ -22,11 +24,21 @@ no unverified platforms can access
 */
 
 const server = http.createServer((req, res) => {
-    fs.readFile("../frontend/index.html", (err, data) => {
+    let requestedFile; 
+
+    if(req.url === '/'){
+        requestedFile = "../frontend/index.html"; 
+    }
+
+    else{
+        requestedFile = "../frontend" + req.url; 
+    }
+
+    fs.readFile(requestedFile, (err, data) => {        
         if(err){
-            res.writeHead(500); 
+            res.writeHead(404); 
             //gives server error response 
-            res.end("Could not load index.html"); 
+            res.end("File not found"); 
 
             /*
             1xx status codes are informational 
@@ -39,7 +51,13 @@ const server = http.createServer((req, res) => {
             return; 
         }
 
-        res.writeHead(200, {"Content-Type" : "text/html" }); 
+        let contentType = "text/html"; 
+
+        if(req.url.endsWith(".css")){
+            contentType = "text/css"; 
+        }
+
+        res.writeHead(200, {"Content-Type" : contentType }); 
         //prints success codes 
 
         data = data.toString().replace("__SESSION_SECRET__", SESSION_SECRET); 
