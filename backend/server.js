@@ -57,6 +57,10 @@ const server = http.createServer((req, res) => {
             contentType = "text/css"; 
         }
 
+        if(req.url.endsWith(".js")){
+            contentType = "text/javascript"; 
+        }
+
         res.writeHead(200, {"Content-Type" : contentType }); 
         //prints success codes 
 
