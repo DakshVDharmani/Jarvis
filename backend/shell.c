@@ -2,7 +2,6 @@
 //input and output, handles touch and other commands 
 #include <stdlib.h>
 //for general utilities like memory allocation and process control conversions
-//system() comes from stdlib as well, having network validations 
 #include <unistd.h> 
 //for posio functions, get current directory, forks, and changing the directory 
 #include <string.h> 
@@ -11,6 +10,8 @@
 //for traversal of directories 
 #include <sys/stat.h>
 //this is where mkdir is declared 
+#include <process.h>
+//replacing system() for arp, and others
 
 #define MAX_LINE 1024 
 //for maximum input length 
@@ -156,12 +157,34 @@ void builtIn_pwd(){
 }
 
 void builtIn_arp(){
-    int result = system("arp -a"); 
-    //system() acts as an operating system that executes a few commands, and then outputs them on the screen
+    // int result = system("arp -a"); 
+    // //system() acts as an operating system that executes a few commands, and then outputs them on the screen
 
-    if(result != 0)
+    // if(result != 0)
+    //     perror("arp failed"); 
+    // //stores the job outcome in result for error handling
+
+    const char *arp_args[] = {
+        "arp", 
+        "-a", 
+        NULL
+    }; 
+
+    int result = _spawnvp(
+        _P_WAIT, 
+        //_P_WAIT tells spawnvp to start arp.exe and come back with result when finished
+        "arp", 
+        arp_args
+    ); 
+
+    if(result == -1){
         perror("arp failed"); 
-    //stores the job outcome in result for error handling
+        return; 
+    }
+
+    if(result != 0){
+        printf("arp exited with code %d\n", result); 
+    }
 }
 
 void builtIn_rm(char** args){
@@ -172,8 +195,34 @@ void builtIn_rm(char** args){
         return; 
     }
 
+    char cwd[MAX_LINE]; 
+
+    if(getcwd(cwd, sizeof(cwd))==NULL){
+        perror("Couldn't determine current directory");
+        return; 
+    }
+
+    //confirmation solves the security protocol to delete data
+    printf("Delete %s/%s? (y/n)", cwd, filename); 
+    fflush(stdout); 
+
+    char confirmation[10]; 
+
+    if(fgets(confirmation, sizeof(confirmation), stdin) == NULL){
+        printf("Deletion cancelled\n"); 
+        return; 
+    }
+
+    if(confirmation[0] != 'Y' && confirmation[0] != 'y'){
+        printf("Deletion cancelled\n"); 
+        return; 
+    }
+
+    //remove operation is handled here
     if(remove(filename) != 0)
-        perror("Couldn't delete file\n"); 
+        perror("Couldn't delete file\n");
+        
+    printf("Deleted %s/%s\n", cwd, filename); 
 }
 
 int main(){
