@@ -1,0 +1,45 @@
+#hud {
+    position: absolute;
+    top: 8vh; 
+    left: 50%;
+    transform: translateX(-50%);
+    /*centers the hud properly*/
+    text-align: center;
+    color: #00FF88; 
+    font-family: Consolas, monospace;
+    z-index: 10;
+    pointer-events: none;
+    /*useful, so it doesnt block mouse clicks*/
+    width: 100%;
+    font-size: 14px;
+}
+
+#jarvis-sphere {
+    position: relative;
+    width: 50vh;
+    height: 50vh;
+    margin: 0 auto;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    /*centers its content horizontally*/
+    align-items: center;
+    /*centers its content vertically*/
+}
+
+#jarvis-status {
+    margin-top: 1vh;
+    font-size: 2.5vh;
+    font-weight: 500;
+    letter-spacing: 0.6vh;
+    text-shadow: 0 0 1vh currentColor;
+    opacity: 0.9;
+}
+
+#system-info {
+    margin-top: 1vh;
+    font-size: 2vh;
+    letter-spacing: 0.4vh;
+    opacity: 0.7;
+    text-shadow: 0 0 0.5vh currentColor;
+}

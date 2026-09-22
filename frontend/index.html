@@ -5,8 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jarvis</title>
     <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/hud.css">
 </head>
 <body>
+    <div id ="hud">
+        <div id="jarvis-sphere">
+        </div>
+        <div id="jarvis-status">SYSTEM ONLINE</div>
+        <!--The status will update dynamically once we get to that stage-->
+
+        <div id="system-info">
+            <span id="system-mode">MODE: IDLE</span>
+        </div>
+    </div>
+
     <div id = "terminal">
         <span id = "output"></span>
         <!--span keeps the result inline, while div puts it to nextline-->
