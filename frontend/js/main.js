@@ -1,3 +1,8 @@
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/+esm";
+
+import { createSphere, updateSphere } from "./sphere.js";
+import { createParticles, updateParticles } from "./particles.js";
+
 /*
 const is one of the ways to make variables in javascript, 
 after initializing with const, variable cannot be reassigned but modified 
@@ -6,6 +11,33 @@ after initializing with const, variable cannot be reassigned but modified
 const input = document.getElementById("command"); 
 const output = document.getElementById("output");
 const terminal = document.getElementById("terminal");
+
+const scene = new THREE.Scene(); 
+const sphere = createSphere(); 
+scene.add(sphere); 
+
+const particles = createParticles(); 
+scene.add(particles); 
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100); 
+camera.position.z = 3; 
+
+const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true}); 
+renderer.setSize(window.innerWidth, window.innerHeight); 
+
+const sphereContainer = document.getElementById("jarvis-sphere"); 
+sphereContainer.appendChild(renderer.domElement); 
+//this draws our canvas to show the sphere 
+
+function animate(time){
+    requestAnimationFrame(animate); 
+    updateSphere(sphere, time); 
+    updateParticles(particles, time);
+    renderer.render(scene, camera); 
+    //this renders the THREE.js scene and camera
+}
+
+animate(); 
 
 const commandHistory = []; 
 let historyIndex = 0; 
