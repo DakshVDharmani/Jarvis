@@ -3,8 +3,12 @@ const fs = require("fs");
 //fs is short for file system to read the index.html 
 const path = require("path"); 
 //if the frontend requests for a path
+const os = require("os"); 
+//os will give access to temporary directory to store audio before processing
 
 const crypto = require("crypto"); 
+const Busboy = require("busboy"); 
+//extracts actual audio so whisper gets actual audio files rather than entire HTTP body 
 
 const { spawn } = require("child_process"); 
 /*spawn lets Node start our C program, gives us 
@@ -25,6 +29,29 @@ no unverified platforms can access
 
 const server = http.createServer((req, res) => {
     let requestedFile; 
+
+    if(req.method === 'POST' && req.url === "/transcribe"){
+        console.log("Transcription request received"); 
+
+        const busboy = Busboy({ headers: req.headers}); 
+        busboy.on("file", (fieldname, file, info) =>{
+            console.log("Received audio", info.filename); 
+            const audiopath = path.join(os.tmpdir(), "jarvis-recording.webm"); 
+            //stores the audio in a temporary directory using os 
+            const writeStream = fs.createWriteStream(audiopath); 
+            //this opens the temporary file 
+            file.pipe(writeStream);
+            //sends uploaded bytes directly into it
+
+            writeStream.on("finish", () => {
+                console.log("Audio saved", audiopath); 
+                //handles error in case audio saving has a problem 
+            }); 
+        }); 
+
+        req.pipe(busboy); 
+        return; 
+    }
 
     if(req.url === '/'){
         requestedFile = "../frontend/index.html"; 

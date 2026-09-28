@@ -12,6 +12,14 @@ const input = document.getElementById("command");
 const output = document.getElementById("output");
 const terminal = document.getElementById("terminal");
 
+const voiceButton = document.getElementById("voice-button"); 
+const systemMode = document.getElementById("system-mode"); 
+
+let mediaRecorder; 
+//it will control recording of the microphone 
+let audiochunks = []; 
+//stores bits of audio in chunks 
+
 const scene = new THREE.Scene(); 
 const sphere = createSphere(); 
 scene.add(sphere); 
@@ -56,20 +64,82 @@ connection.onopen = () => {
     console.log("Connected to Jarvis' Server"); 
 }; 
 
+function sendCommand(command){
+    if(command.trim()==="") return; 
+
+    commandHistory.push(command); 
+    historyIndex = commandHistory.length; 
+    //saves the history of commands in an array of commands 
+
+    output.textContent += command + "\n"; 
+
+    connection.send(JSON.stringify({
+            message : command, 
+            secret : SESSION_SECRET
+    })); 
+
+}
+
+voiceButton.addEventListener("click", async()=>{
+    console.log("MIC BUTTON CLICKED"); 
+    //in case the button doesn't respond 
+    
+    if(mediaRecorder && mediaRecorder.state === "recording"){
+        mediaRecorder.stop(); 
+        //stops recording when button is clicked again
+        return; 
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true}); 
+    //waits for audio to be switched on by the user, while getUserMedia asks user permission
+    mediaRecorder = new MediaRecorder(stream); 
+    //MediaRecorder is the browser provided class 
+    audiochunks = [];
+    
+    //this function is to turn the bits of audio into an audio file 
+    mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audiochunks, {type: mediaRecorder.mimeType }); 
+        //audioBlob combines all the audiochunks that eventually be sent to whisper.cpp 
+        systemMode.textContent = "MODE: TRANSCRIBING"; 
+        voiceButton.textContent = "MIC"; 
+
+        console.log("Audio recorded: ", audioBlob.size, "bytes"); 
+        //allows to verify that the audio files exist using DevTools 
+        stream.getTracks().forEach(tracks => tracks.stop()); 
+        //this stops the microphone from recording 
+
+        const formData = new FormData(); 
+        formData.append("audio", audioBlob, "recording.webm"); 
+
+        console.log("Audio prepared for transcription"); 
+        const response = await fetch("/transcribe", {
+            method: "POST", 
+            body: formData
+        }); 
+
+        const data = await response.json(); 
+        const transcript = data.transcript; 
+        input.value = transcript; 
+        //now server.js will have an option to create transcript
+    }; 
+
+    mediaRecorder.ondataavailable = (event) => {
+        audiochunks.push(event.data); 
+    }; 
+
+    mediaRecorder.start(); 
+    //starts recording our microphone 
+    systemMode.textContent = "MODE: Listening"; 
+    voiceButton.textContent = "STOP"; 
+    console.log("Voice recording started"); 
+    //for better error handling 
+}); 
+
 input.addEventListener("keydown", (event) =>{
     if(event.key == "Enter"){
         const command = input.value; 
         //this stores whatever was typed before ENTER into command variable 
-        commandHistory.push(command); 
-        historyIndex = commandHistory.length; 
-        //saves the history of commands in an array of commands 
-
-        output.textContent += command + "\n"; 
-
-        connection.send(JSON.stringify({
-            message : command, 
-            secret : SESSION_SECRET
-        })); 
+        sendCommand(command); 
 
         input.value = ""; 
         //thus the box becomes empty for the next command \
@@ -94,7 +164,6 @@ input.addEventListener("keydown", (event) =>{
             input.value = ""; 
         }
     }
-
 }); 
 //detects ENTER has been pressed to take input 
 

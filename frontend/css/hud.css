@@ -43,3 +43,7 @@
     opacity: 0.7;
     text-shadow: 0 0 0.5vh currentColor;
 }
+
+#voice-button {
+    pointer-events: auto;
+}
