@@ -17,6 +17,8 @@ const { spawn } = require("child_process");
     shell.stderr    // C errors → Node
 */
 
+const { TranscribeAudio } = require("../sound/request/whisper"); 
+
 const WebSocket = require("ws"); 
 //adds websocket to the code 
 
@@ -45,77 +47,33 @@ const server = http.createServer((req, res) => {
 
             writeStream.on("finish", () => {
                 console.log("Audio saved", audiopath); 
-                //handles error in case audio saving has a problem 
+                //handles error in case audio saving has a problem
+                
+                TranscribeAudio(audiopath)
+                    .then((transcript) => {
+                        res.writeHead(200, {
+                            "Content-Type" : "application/json"
+                        }); 
 
-                const wavPath = path.join(os.tmpdir(), "jarvis-recording.wav"); 
-                //tells where to store the recording in wav temporarily 
-                const ffmpegPath = "C:\\Jarvis\\tools\\ffmpeg\\bin\\ffmpeg.exe";
-                //this points to the location where our ffmpeg lies 
+                        res.end(JSON.stringify({
+                            transcript : transcript
+                        })); 
 
-                const ffmpeg = spawn(ffmpegPath, [
-                    "-y", 
-                    //to approve request to overwrite file if it exists 
-                    "-i", audiopath, 
-                    //tells it's location to work on
-                    "-ar", "16000", 
-                    //16kHz sample rate 
-                    "-ac", "1", 
-                    //mono audio 
-                    "-c:a", "pcm_s16le",
-                    wavPath
-                    //saves the recording in wav 
-                ]); 
-
-                //close fires when ffmpeg finishes 
-                ffmpeg.on("close", (code) =>{
-                    if(code!==0){
-                        //the code is job code output given as exit code 
-                        console.log("FFMPEG conversion failed"); 
-                        return; 
-                    }
-
-                    const whisperPath = "C:\\Jarvis\\tools\\whisper\\whisper-cli.exe"; 
-                    const modelPath = "C:\\Jarvis\\tools\\whisper\\models\\ggml-base.en.bin"; 
-                    //gives the model we're currently using 
-
-                    const whisper = spawn(whisperPath, [
-                        "-m", modelPath, 
-                        //initializes our model for whisper
-                        "-f", wavPath, 
-                        //gives whisper our file 
-                        "-nt", 
-                        //removes timestamps 
-                        "-np"
-                        //supresses unnecessary whisper output 
-                    ]); 
-
-                    console.log("Whisper started"); 
-
-                    let transcript = ""; 
-                    //storing the transcript in temporary string storage 
-
-                    whisper.stdout.on("data", (data) =>{
-                        transcript += data.toString(); 
-                    }); 
-
-                    whisper.on("close", (code) => {
-                        if(code!==0){
-                            console.log("Whisper model failed"); 
-                            return; 
-                        }
-
-                        transcript = transcript.trim(); 
-                        //to remove whitespaces from beginning and end 
-
-                        res.writeHead(200
-                        //200 is the HTTP status for success
-                        , {"Content-Type": "application/json"}); 
-                        res.end(JSON.stringify({ transcript: transcript})); 
                         console.log("Transcript: ", transcript); 
 
-                    }); 
-                }); 
+                    }) 
+                    
+                    .catch((error) =>{
+                        console.log("Transcript Error: ", error.message); 
 
+                        res.writeHead(500, {
+                            "Content-Type" : "application/json"
+                        }); 
+
+                        res.end(JSON.stringify({
+                            error: "Transcription failed"
+                        })); 
+                    }); 
             }); 
         }); 
 
